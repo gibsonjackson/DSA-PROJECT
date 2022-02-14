@@ -1,11 +1,21 @@
 #include <bits/stdc++.h>
+#include <windows.h>
 #define int long long
-
 using namespace std;
+HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 vector<string> productName;
 map<string, pair<int, int>> products; // price is in rupees, duration is in minutes
 int x = 0;
-
+void colour(){
+    SetConsoleTextAttribute(hConsole, 7);
+}
+void colour(int k){
+    SetConsoleTextAttribute(hConsole, k);
+    // green is 10
+    //light blue is 9
+    //red is 4
+    //purple is 5
+}
 class bill
 {
     public:
@@ -23,11 +33,8 @@ class bill
             duration = d;
         }
         
-        void onScreen() { // BILL ID, CUSTOMER NAME, DURATION
-           // Tikki Tikki Tambo No Saribo Hari Kari Bushki Peri Pem Po Hai Kai Nikki No Meeno Dom Barako//90
-           cout << "-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-" << endl; 
-           cout << "Bill ID: " << customerId << " Customer Name: " << customerName << " Estimated Duration: " << duration << endl;
-           cout << "-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-" << endl; 
+        void onScreen(int inst) { // BILL ID, CUSTOMER NAME, DURATION
+           cout << "Bill ID: " << customerId << " Customer Name: " << customerName << " Estimated Duration: " << inst << endl;
         }
         
         void offScreen() { // BILL ID AND ORDER
@@ -38,9 +45,9 @@ class bill
                 cout << x.first << " " << x.second << endl;
             }
             cout << "-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-" << endl; 
-        }
-        
+        }        
         void generateBill(){
+            colour(10);
             cout << "-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-" << endl; 
             cout << "Bill ID:- " << customerId << endl;
             cout << "Customer name:- " << customerName << endl;
@@ -53,17 +60,19 @@ class bill
             }
             cout << "Your total amount will be: " << totalPrice << endl;
             cout << "-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-" << endl; 
+            colour();
+            //system("default")
         }
 };
 queue<bill> q;
-// 1 class bill --- 11th 5-7 --- {Bill id, customer name, customer contact, product list(product name, product quantity), total price.}
-// 2 list product --- minor
-// 3 print menu --- minor
-// 4 place order --- major
-// 5 queue --- major
-// 6 histogram(prefed time)
-// 7 generate and print bill
-
+// 1 class bill --- 11th 5-7 --- {Bill id, customer name, customer contact, product list(product name, product quantity), total price.} -- done
+// 2 list product --- minor -- done
+// 3 print menu --- minor -- done
+// 4 place order --- major -- done
+// 5 queue --- major -- done
+// 6 histogram(prefed time) -- 
+// 7 editing product
+// 8 generate and print bill -- done
 void productInititalize() // default in menu available
 {
     products["Paneer Burger"] = {65, 3};//price, duration
@@ -71,7 +80,6 @@ void productInititalize() // default in menu available
     products["Chicken Burger"] = {85, 4};
     productName.push_back("Chicken Burger"); // to be added
 }
-
 void addProduct() // To give feature to add products
 {   string name;
     int price, duration;
@@ -79,15 +87,15 @@ void addProduct() // To give feature to add products
     products[name] = {price, duration};
     productName.push_back(name);
 }
-
 void printMenu()
 {
+    colour(100);
     cout << "Delicacy          " << "Price            " << "Duration" << endl;
     for (auto x : productName){
         cout << x << " " << products[x].first << " " << products[x].second << endl;
     }
+    colour();
 }
-
 void reflect() { //sequencially display onScreen boxes and then offscreen boxes
     vector<bill>printer;
     int n=q.size();
@@ -101,23 +109,31 @@ void reflect() { //sequencially display onScreen boxes and then offscreen boxes
         printer.push_back(p);
     }
     cout << "This is the customer screen display" << endl;
+    int cumulated=0;
+    cout << "-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-" << endl; 
+    //system("orange code")
+    //system("red code")
+    colour(4);
     for(auto x:printer){
-        x.onScreen();
+        cumulated+=x.duration;
+        x.onScreen(cumulated);
+        colour(3);
     }
+    colour();
+    //system("default")
+    cout << "-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-" << endl; 
     cout << "This is the worker screen display" << endl;
     q.front().offScreen();
+    cout << "-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-" << endl; 
 }
-
 void placeOrder(){ //bill obj(12, "Arki", "12345678890", test//vector<name and quantity);
     cout << "Enter customer name:" << endl;
     string custname;
     cin >> custname;
-
     cout << "Enter phone number:" << endl;
     int number;
     cin >> number;
     string phone_no = to_string(number);
-
     vector<pair<string, int>> test; // name + quantity
     int instDuration = 0;
     while(1) {
@@ -151,18 +167,9 @@ void placeOrder(){ //bill obj(12, "Arki", "12345678890", test//vector<name and q
     q.push(obj);
     reflect();
 }
-
 void generateHistogram(){
     cout << "Histogram" << endl;
 }
-// A ---3 - 3 mins d * q max----A's duration 
-// A ---2 - 4 mins d * q
-// B ---2 - 3 mins
-// B ---1 - 5 mins
-// A --- 4 // a --- 17     a --- 9
-// B --- 9 // b --- 17+11  b --- 9 + 6 
-// C --- 
-// kitchen component --- ye package me ye ye order ready karna hai --- 
 int32_t main()
 {
     productInititalize();
@@ -205,6 +212,7 @@ int32_t main()
                 cout << "Product Successfully Added" << endl;
                 break;
             case 6:
+                colour(6);
                 cout << "Counter Closed" << endl;
                 break;
             default:
