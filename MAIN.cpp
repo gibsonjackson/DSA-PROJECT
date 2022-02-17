@@ -5,9 +5,10 @@ using namespace std;
 HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 vector<string> productName;
 map<string, pair<int, int>> products; // price is in rupees, duration is in minutes
-map<string, int> productCount;
-int x = 0;
- 
+map<string, int> productCount; // stores no.of units of that product ordered
+map<string, int> profitMargin;
+int x = 0, numberOfOrders = 0;
+
 void colour(){
     SetConsoleTextAttribute(hConsole, 7);
 }
@@ -26,7 +27,7 @@ class bill
         int customerId;
         string customerName;
         string customerContact;
-        vector<pair<string, int>> order; //product name,quantity
+        vector<pair<string, int>> order; // product name, quantity
         int duration;
  
         bill(int id, string name, string contact, vector<pair<string, int>> &iorder, int d) {//&order already string , quantity
@@ -72,29 +73,28 @@ class bill
 };
  
 queue<bill> q;
-// 1 class bill --- 11th 5-7 --- {Bill id, customer name, customer contact, product list(product name, product quantity), total price.} -- done
-// 2 list product --- minor -- done
-// 3 print menu --- minor -- done
-// 4 place order --- major -- done
-// 5 queue --- major -- done
-// 6 histogram(prefed time) --
-// 7 editing product
-// 8 generate and print bill -- done
+
+// average time to prepare orders
+// average time to prepare dishes
+// histogram of profits---gross gain for the day//arki
+// add color + formatting
  
 void productInititalize() // default in menu available
 {
-    products["paneer burger"] = {65, 3}; //price, duration
+    products["paneer burger"] = {65, 3}; // price, duration
+    profitMargin["paneer burger"]=10;
     productName.push_back("paneer burger");
     productCount["paneer burger"] = 0;
     products["chicken burger"] = {85, 4};
     productName.push_back("chicken burger"); // to be added
     productCount["chicken burger"] = 0;
+    profitMargin["chicken burger"]=15;
 }
  
 void addProduct() // To give feature to add products
 {
     string name;
-    int price, duration;
+    int price, duration, profit;
     cout << "Enter product name" << endl;
     getline(cin >> ws, name);
     
@@ -102,11 +102,12 @@ void addProduct() // To give feature to add products
     {
         name[i] = tolower(name[i]);
     }
-    cout << "Enter price, duration " << endl;
-    cin >> price >> duration;
+    cout << "Enter price, duration, profit Margin " << endl;
+    cin >> price >> duration >> profit;
     products[name] = {price, duration};
     productCount[name] = 0;
     productName.push_back(name);
+    profitMargin[name] = profit;
 }
  
 void printMenu()
@@ -192,6 +193,7 @@ void placeOrder(){ //bill obj(12, "Arki", "12345678890", test//vector<name and q
         return;
     }
     cout << "Your order is placed! " << endl;
+    numberOfOrders++;
     bill obj(x++, custname, phone_no, test, instDuration);
     q.push(obj);
     reflect();
@@ -236,17 +238,74 @@ void printHistogram(map<string, int> &a)
 		cout << right << i.first << " ";
 	}
 }
- 
+
+void profitHistogram(map<string, int> &delta, map<string, int> &productCount)
+{
+    int maxFreq = -1, cost;
+    for (auto x : delta)
+    {
+        cost = x.second * productCount[x.first];
+        maxFreq = max(cost, maxFreq);
+    }
+
+    for (int i = maxFreq; i > 0; i--)
+    {
+        cout.width(2);
+        int maxSpace = log10(maxFreq) + 1;
+        int space = log10(i);
+        string spaces = "";
+        for (int i = 0; i <= maxSpace - space; i++)
+        {
+            spaces += " ";
+        }
+        cout << spaces << i << " | ";
+        for (auto j : delta)
+        {
+            cost = j.second * productCount[j.first];
+            if (cost >= i)
+                cout << "x               ";
+
+            // else print blank spaces
+            else
+                cout << "                ";
+        }
+        cout << "\n";
+    }
+
+    for (int i = 0; i < delta.size() + 3; i++)
+        cout << "---";
+
+    cout << "\n";
+    cout << "	 ";
+
+    for (auto i : delta)
+    {
+        cout.width(2);
+        cout << right << i.first << " ";
+    }
+}
+
 void generateHistogram() {
-    //cout << "Histogram" << endl;//edit here
-    printHistogram(productCount);
+    cout << "Enter 1 to generate histogram of popularity of products \nEnter 2 to generate histogram of profit margin" << endl;
+    int histoChoice = 0;
+    cin >> histoChoice;
+    switch(histoChoice){
+        case 1 : 
+            printHistogram(productCount); 
+            break;
+        case 2 : 
+            profitHistogram(profitMargin, productCount); 
+            break;
+        default : 
+            cout << "Invalid Input" <<endl;
+    }
 }
  
 void editOrDelete() {
     for(int i = 0; i < productName.size(); i++) {
         cout << i + 1 << " - " << productName[i] << endl;
     }
-    cout << "Enter the number corresponding to the number you want to update " << endl;
+    cout << "Enter the number corresponding to the product you want to update " << endl;
     int choice1 = 0;
     cin >> choice1;//index
     if (choice1 <= 0 && choice1 > productName.size()) {
@@ -262,19 +321,19 @@ void editOrDelete() {
             int nr = 0;
             cin >> nr;
             int newprice = products[productName[choice1 - 1]].first, newduration = products[productName[choice1 - 1]].second;
-            if(nr == 1){
+            if (nr == 1) {
                 cout << "Enter the new price " << endl;
                 cin >> newprice ;
             }
-            else if(nr == 2){
+            else if (nr == 2) {
                 cout << "Enter the new duration " << endl;
                 cin >> newduration;
             }
-            else if(nr == 3) {
+            else if (nr == 3) {
                 cout << "Enter the new price and new duration" << endl;
                 cin >> newprice >> newduration;
             }
-            else{
+            else {
                 cout << "Invalid choice" << endl;
                 return;
             }
@@ -294,7 +353,41 @@ void editOrDelete() {
             printMenu();
     }
 }
- 
+
+void averages() {
+    long double orderTime = 0, itemTime = 0;
+    int noOfProducts = 0;
+    for (int i = 0; i < productName.size(); i++)
+    {
+        orderTime += productCount[productName[i]] * products[productName[i]].second;
+        itemTime = orderTime;
+        noOfProducts += productCount[productName[i]];
+    }
+    orderTime /= (long double)numberOfOrders;
+    itemTime /= (long double)noOfProducts;
+    cout << fixed << setprecision(3) << "Average time taken to process an order = " << orderTime << endl;
+    cout << fixed << setprecision(3) << "Average time taken to prepare an item = " << itemTime << endl;
+}
+
+void editProfit() {
+     for(int i = 0; i < productName.size(); i++) {
+        cout << i + 1 << " - " << productName[i] << endl;
+    }
+    cout << "Enter the number corresponding to the product you want to update " << endl;
+    int choice1 = 0;
+    cin >> choice1;//index
+    if (choice1 <= 0 && choice1 > productName.size()) {
+        cout << " No such product " << endl;
+        return;
+    }
+    else {
+        cout << "Enter new profit" << endl;
+        int profit = 0;
+        cin >> profit;
+        profitMargin[productName[choice1-1]] = profit;
+    }
+}
+
 int32_t main()
 {
     productInititalize();
@@ -306,10 +399,12 @@ int32_t main()
         cout << "Enter 1 for seeing the menu" << endl;
         cout << "Enter 2 to place order" << endl;
         cout << "Enter 3 to generate bill of completed order and pop from the queue" << endl;
-        cout << "Enter 4 to view the histogram of ----" << endl;
+        cout << "Enter 4 to print histograms" << endl;
         cout << "Enter 5 to add a product" << endl;
         cout << "Enter 6 to edit/delete a product" << endl;
-        cout << "Enter 7 to close the counter" << endl;
+        cout << "Enter 7 to edit profit margin" << endl;
+        cout << "Enter 8 to print average time to prepare orders and items" << endl;
+        cout << "Enter 9 to close the counter" << endl;
         cout << "----------------------------------------------------------------------------------------" << endl;
         
         cin >> option;
@@ -342,13 +437,18 @@ int32_t main()
                 editOrDelete();
                 break;
             case 7:
-                colour(6);
+                editProfit();
+                break;
+            case 8:
+                averages();
+                break;
+            case 9:
                 cout << "Counter Closed" << endl;
                 break;
             default:
                 cout << "invalid Input" << endl;
         }
-        if (option == 7) {
+        if (option == 9) {
             break;
         }
     }
