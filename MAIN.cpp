@@ -9,6 +9,20 @@ map<string, int> productCount; // stores no.of units of that product ordered
 map<string, int> profitMargin;
 int x = 0, numberOfOrders = 0;
 
+int convert(string s) {
+    int ans = 0, x = 1;
+    for(int i = (int)s.size() - 1; i > -1; i--) {
+        if (s[i] >= '0' & s[i] <= '9') {
+            ans += ((int)(s[i]) - (int)('0')) * x;
+        } 
+        else {
+            ans += ((int)(s[i]) - (int)('A') + 10) * x;
+        }
+        x *= 16;
+    }
+    return ans;
+}
+
 void colour(){
     SetConsoleTextAttribute(hConsole, 7);
 }
@@ -21,6 +35,26 @@ void colour(int k){
     //purple is 5
 }
  
+string generateSpaces(int x){
+    // x sized spacing
+    string s="";
+    while (x--)
+    {
+        s+=" ";
+    }
+    return s;
+}
+
+int generateSpacing(int x){
+    // number .length basically
+    int ans = 0;
+    while (x > 0) {
+        x /= 10;
+        ans++;
+    }
+    return ans;
+}
+
 class bill
 {
     public:
@@ -39,15 +73,16 @@ class bill
         }
  
         void onScreen(int inst) { // BILL ID, CUSTOMER NAME, DURATION
-           cout << "Bill ID: " << customerId << " Customer Name: " << customerName << " Estimated Duration: " << inst << endl;
+           cout << "Bill ID: " << customerId << "     Customer Name: " << customerName << "   Estimated Duration: " << inst << endl;
         }
  
         void offScreen() { // BILL ID AND ORDER
+            
             cout << "-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-" << endl;
             cout << "Customer ID: " << customerId << endl;
-            cout << "Product Name         Quantity" << endl;
+            cout << "Product Name                                                                     Quantity" << endl;
             for (auto x : order){
-                cout << x.first << " " << x.second << endl;
+                cout << x.first << generateSpaces(85-x.first.length()-generateSpacing(x.second)) << x.second << endl;
             }
             cout << "-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-" << endl;
         }
@@ -56,12 +91,12 @@ class bill
             colour(10);
             cout << "-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-" << endl;
             cout << "Bill ID:- " << customerId << endl;
-            cout << "Customer name:- " << customerName << endl;
-            cout << "Customer contact:- " << customerContact << endl;
+            cout << "Customer name:- " << generateSpaces(84-16-customerName.length())<<customerName << endl;
+            cout << "Customer contact:- " << generateSpaces(85-20-customerContact.length())<< customerContact << endl;
             int totalPrice = 0;
             cout << "Delicacy          " << "Quantity         " << "Price" << endl;
             for(int i = 0; i < (int)order.size(); i++){
-                cout << order[i].first << "         " << order[i].second << "          " << order[i].second * products[order[i].first].first << endl;
+                cout << order[i].first << "         " << order[i].second << "        " << order[i].second * products[order[i].first].first << endl;
                 totalPrice += order[i].second * products[order[i].first].first;
             }
  
@@ -95,27 +130,41 @@ void addProduct() // To give feature to add products
 {
     string name;
     int price, duration, profit;
+    colour(3);
     cout << "Enter product name" << endl;
+    colour();
     getline(cin >> ws, name);
     
     for (int i = 0; i < name.size(); i++)
     {
         name[i] = tolower(name[i]);
     }
+    colour(12);
     cout << "Enter price, duration, profit Margin " << endl;
+    colour();
     cin >> price >> duration >> profit;
     products[name] = {price, duration};
     productCount[name] = 0;
     productName.push_back(name);
     profitMargin[name] = profit;
+    colour(10);
+    cout << "Product Successfully Added" << endl << endl;
+    colour();
 }
  
 void printMenu()
 {
-    colour(100);
-    cout << "Delicacy          " << "Price            " << "Duration" << endl;
-    for (auto x : productName){
-        cout << x << " " << products[x].first << " " << products[x].second << endl;
+    colour(convert("9F"));
+    cout << "Delicacy                               " << "Price                             " << "Duration" << endl;
+    string s = "Delicacy                               ";
+    string t = "Price                             ";
+    string dur = "Duration";
+    int first = s.size(), second = t.size(), third = dur.size();
+    for (auto x : productName) {
+        colour(convert("9F"));
+        cout << x << generateSpaces(first - x.size()) << products[x].first << generateSpaces(second - generateSpacing(products[x].first) + third - generateSpacing(products[x].second)) << products[x].second; // << generateSpaces(third - generateSpacing(products[x].second));
+        colour();
+        cout << endl;
     }
     colour();
 }
@@ -200,12 +249,12 @@ void placeOrder(){ //bill obj(12, "Arki", "12345678890", test//vector<name and q
 }
  
 void printHistogram(map<string, int> &a)
-{
+{   
     int maxFreq = -1;
     for(auto x : a){
         maxFreq = max(x.second, maxFreq);
     }
- 
+    maxFreq += 2;
 	for (int i = maxFreq; i > 0; i--) {
 		cout.width(2);
         int maxSpace = log10(maxFreq) + 1;
@@ -214,12 +263,17 @@ void printHistogram(map<string, int> &a)
         for(int i = 0; i <= maxSpace - space; i++){
             spaces += " ";
         }
-		cout << spaces << i << " | ";
+        colour(convert("0A"));
+		cout << spaces << i << " > ";
+        colour();
+
 		for (auto j : a) {
  
-			if (j.second >= i)
-				cout << "x               ";
- 
+			if (j.second >= i){
+				colour(convert("05"));
+                cout << "     O          ";
+                colour();
+            }
 			// else print blank spaces
 			else
 				cout << "                ";
@@ -227,16 +281,18 @@ void printHistogram(map<string, int> &a)
 		cout << "\n";
 	}
  
-	for (int i = 0; i < a.size() + 3; i++)
-		cout << "---";
+	// for (int i = 0; i < a.size() + 3; i++)
+	// 	cout << "---";
  
 	cout << "\n";
 	cout << "	 ";
- 
+    colour(convert("0A"));
 	for (auto i : a) {
 		cout.width(2); 
 		cout << right << i.first << " ";
 	}
+    cout << endl;
+    colour();
 }
 
 void profitHistogram(map<string, int> &delta, map<string, int> &productCount)
@@ -247,7 +303,7 @@ void profitHistogram(map<string, int> &delta, map<string, int> &productCount)
         cost = x.second * productCount[x.first];
         maxFreq = max(cost, maxFreq);
     }
-
+    maxFreq += 2;
     for (int i = maxFreq; i > 0; i--)
     {
         cout.width(2);
@@ -258,13 +314,17 @@ void profitHistogram(map<string, int> &delta, map<string, int> &productCount)
         {
             spaces += " ";
         }
-        cout << spaces << i << " | ";
+        colour(convert("0A"));
+        cout << spaces << i << " > ";
+        colour();
         for (auto j : delta)
         {
             cost = j.second * productCount[j.first];
-            if (cost >= i)
-                cout << "x               ";
-
+            if (cost >= i){
+                colour(convert("05"));
+                cout << "     O          ";
+                colour();
+            }
             // else print blank spaces
             else
                 cout << "                ";
@@ -272,17 +332,19 @@ void profitHistogram(map<string, int> &delta, map<string, int> &productCount)
         cout << "\n";
     }
 
-    for (int i = 0; i < delta.size() + 3; i++)
-        cout << "---";
+    // for (int i = 0; i < delta.size() + 3; i++)
+    //     cout << "---";
 
     cout << "\n";
     cout << "	 ";
-
+    colour(convert("02"));
     for (auto i : delta)
     {
         cout.width(2);
         cout << right << i.first << " ";
     }
+    cout << endl;
+    colour();
 }
 
 void generateHistogram() {
@@ -431,7 +493,6 @@ int32_t main()
                 break;
             case 5:
                 addProduct();
-                cout << "Product Successfully Added" << endl;
                 break;
             case 6:
                 editOrDelete();
