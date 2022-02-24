@@ -108,11 +108,6 @@ class bill
 };
  
 queue<bill> q;
-
-// average time to prepare orders
-// average time to prepare dishes
-// histogram of profits---gross gain for the day//arki
-// add color + formatting
  
 void productInititalize() // default in menu available
 {
@@ -453,6 +448,9 @@ void editProfit() {
 int32_t main()
 {
     productInititalize();
+    colour(convert("03"));
+    cout << "Welcome to SwiftEats!" << endl;
+    colour();
     while(1)
     {   
         // reflect
