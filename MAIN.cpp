@@ -94,9 +94,14 @@ class bill
             cout << "Customer name:- " << generateSpaces(84-16-customerName.length())<<customerName << endl;
             cout << "Customer contact:- " << generateSpaces(85-20-customerContact.length())<< customerContact << endl;
             int totalPrice = 0;
-            cout << "Delicacy          " << "Quantity         " << "Price" << endl;
+
+            string s = "Delicacy          ";
+            string t = "Quantity         ";
+            string p = "Price";
+            cout << s << t << p << endl;
+            int first = s.size(), second = t.size(), third = p.size();
             for(int i = 0; i < (int)order.size(); i++){
-                cout << order[i].first << "         " << order[i].second << "        " << order[i].second * products[order[i].first].first << endl;
+                cout << order[i].first << generateSpaces(first - order[i].first.size()) << order[i].second << generateSpaces(second - generateSpacing(products[order[i].first].first) + third - generateSpacing(products[order[i].first].second)-3) << order[i].second * products[order[i].first].first << endl;
                 totalPrice += order[i].second * products[order[i].first].first;
             }
  
@@ -195,7 +200,7 @@ void reflect() { //sequencially display onScreen boxes and then offscreen boxes
     cout << "-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-" << endl;
 }
  
-void placeOrder(){ //bill obj(12, "Arki", "12345678890", test//vector<name and quantity);
+void placeOrder(){ 
     cout << "Enter customer name:" << endl;
     string custname;
     cin >> custname;
