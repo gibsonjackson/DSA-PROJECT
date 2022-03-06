@@ -370,7 +370,7 @@ void editOrDelete() {
     cout << "Enter the number corresponding to the product you want to update " << endl;
     int choice1 = 0;
     cin >> choice1;//index
-    if (choice1 <= 0 && choice1 > productName.size()) {
+    if (choice1 <= 0 || choice1 > productName.size()) {
         cout << " No such product " << endl;
         return;
     }
@@ -438,7 +438,7 @@ void editProfit() {
     cout << "Enter the number corresponding to the product you want to update " << endl;
     int choice1 = 0;
     cin >> choice1;//index
-    if (choice1 <= 0 && choice1 > productName.size()) {
+    if (choice1 <= 0 || choice1 > productName.size()) {
         cout << " No such product " << endl;
         return;
     }
